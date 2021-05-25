@@ -26,9 +26,9 @@ struct Connection
     struct Database *db;
 };
 
-void address_Print(struct Address *address)
+void address_Print(struct Address *addr)
 {
-    printf("%d %d\n", address->id, address->set);
+    printf("%d %s %s\n", addr->id, addr->name, addr->email);
 }
 
 void die(char *message)
@@ -94,8 +94,8 @@ void Database_write(struct Connection *conn)
 {
 
     rewind(conn->file);
-    int read_count = fread(conn->db, sizeof(struct Database), 1, conn->file);
-
+    int read_count = fwrite(conn->db, sizeof(struct Database), 1, conn->file);
+    
     if (read_count != 1)
         die("Failed to write database.\n");
     read_count = fflush(conn->file);
@@ -105,8 +105,9 @@ void Database_write(struct Connection *conn)
 
 void Database_create(struct Connection *conn)
 {
+    int i = 0;
 
-    for (int i = 0; i < MAX_ROWS; i++)
+    for (i = 0; i < MAX_ROWS; i++)
     {
         struct Address address = {.id =i,.set=0};
         conn->db->rows[i] = address;
@@ -117,6 +118,7 @@ void Database_set(struct Connection *conn, int id,const char *email, const char 
 
     struct Address *address = &conn->db->rows[id];
     if(address->set) die("Already set delete it first\n");
+
     address->set = 1;
     
     char *res = strncpy(address->name,name,MAX_DATA);
@@ -146,7 +148,8 @@ void Database_list(struct Connection *conn){
 
     for(i=0;i<MAX_ROWS;i++){
         struct Address *cur = &db->rows[i];
-        if(cur->set) address_Print(cur);
+        if(cur->set) 
+        address_Print(cur);
     }
 }
 
@@ -161,9 +164,9 @@ int main(int argc, char *argv[])
 
     struct Connection *conn = Database_open(filename,action);
 
-    int id = 0;
+    int id=0;
 
-    if(argc > 3) id = atoi(argv[2]);
+    if(argc > 3) id = atoi(argv[3]);
     if(id>=MAX_ROWS) die("That's not that many records.\n");
 
     switch (action)
@@ -192,7 +195,7 @@ int main(int argc, char *argv[])
 
     case 'l':
         Database_list(conn);
-    
+        break;
     default:
         die("Invalid action: c=create, g=get, s=set, d=del, l=list");
         break;
