@@ -206,6 +206,14 @@ void Database_delete(struct Connection *conn, int id)
     conn->db->rows[id] = &addr;
 }
 
+void find(struct Connection *conn, int id){
+    struct Database *db = conn->db;
+    int MAX_ROWS = conn->db->MAX_ROWS;
+    for(int i = 0; i < MAX_ROWS; i++){
+        if(id == i) Address_print(db->rows[i]);
+    }
+}
+
 void Database_list(struct Connection *conn)
 {
     int i = 0;
@@ -261,6 +269,11 @@ int main(int argc, char *argv[])
         case 'l':
             Database_list(conn);
             break;
+        
+        case 'f':
+            find(conn,atoi(argv[3]));
+            break;
+
         default:
             die("Invalid action, only: c=create, g=get, s=set, d=del, l=list");
     }
