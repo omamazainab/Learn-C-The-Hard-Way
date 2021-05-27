@@ -555,3 +555,75 @@ int main(int argc, char *argv[])
 }
 ```
 ### Add more operations you can do with the database, like find.
+
+```c
+void find(struct Connection *conn, int id){
+    struct Database *db = conn->db;
+    int MAX_ROWS = conn->db->MAX_ROWS;
+    for(int i = 0; i < MAX_ROWS; i++){
+        if(id == i) Address_print(db->rows[i]);
+    }
+}
+```
+
+### Read about how C does it’s struct packing, and then try to see why your file is the size it is. See if you can calculate a new size after adding more fields.
+
+### padding
+
+In order to align data in memory some bytes are left empty between memory addresses which are allocated for structure members.
+
+Architecture of a computer processor is designed in such a way that it can read 1 word from memory at a time. To make use of this advantage of processor, data is always aligned in according to word size(8 bytes in 64-bit architecture) packages
+
+Because of this structure padding in C, the size of the structure may not be as expected.
+
+### Packing 
+
+On the other hand is opposite of padding it prevents compiler from doing padding.
+
+```c 
+#include<stdio.h>
+
+struct __attribute__((__packed__)) Address
+{
+    char *name;
+    char *email;
+    int id;
+    int set;
+    int ma;
+};
+
+int main(int argc, char *argv[]){
+    
+    struct Address address = {.id = 1,.set = 0, .name = "omama", .email = "omama@gmail.com",.ma=9e4};
+    printf("%ld",sizeof(address));
+
+    return 0;
+}
+```
+```c
+$ 28
+```
+
+```c 
+#include<stdio.h>
+
+struct Address
+{
+    char *name;
+    char *email;
+    int id;
+    int set;
+    int ma;
+};
+
+int main(int argc, char *argv[]){
+    
+    struct Address address = {.id = 1,.set = 0, .name = "omama", .email = "omama@gmail.com",.ma=9e4};
+    printf("%ld",sizeof(address));
+
+    return 0;
+}
+```
+```c
+$ 32
+```
